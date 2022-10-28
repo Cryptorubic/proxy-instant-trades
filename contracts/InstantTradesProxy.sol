@@ -56,21 +56,25 @@ contract InstantProxy is BridgeBase {
     }
 
     constructor(
+        uint256 _fixedCryptoFee,
+        uint256 _RubicPlatformFee,
         address[] memory _routers,
         address[] memory _tokens,
         uint256[] memory _minTokenAmounts,
         uint256[] memory _maxTokenAmounts
     ) {
-        initialize(_routers, _tokens, _minTokenAmounts, _maxTokenAmounts);
+        initialize(_fixedCryptoFee, _RubicPlatformFee, _routers, _tokens, _minTokenAmounts, _maxTokenAmounts);
     }
 
     function initialize(
+        uint256 _fixedCryptoFee,
+        uint256 _RubicPlatformFee,
         address[] memory _routers,
         address[] memory _tokens,
         uint256[] memory _minTokenAmounts,
         uint256[] memory _maxTokenAmounts
     ) initializer private {
-        __BridgeBaseInit(0, 0, _routers, _tokens, _minTokenAmounts, _maxTokenAmounts);
+        __BridgeBaseInit(_fixedCryptoFee, _RubicPlatformFee, _routers, _tokens, _minTokenAmounts, _maxTokenAmounts);
     }
 
     function instantTradeWithoutFees(
@@ -157,12 +161,12 @@ contract InstantProxy is BridgeBase {
     ) private {
         IERC20Upgradeable(_params.inputToken).safeApprove(_params.dex, _params.inputAmount);
 
-        uint256 balanceOutBefore = getBalance(_params.recipient, _params.outputToken);
+        uint256 balanceOutBefore = _getBalance(_params.recipient, _params.outputToken);
         uint256 balanceInBefore = IERC20Upgradeable(_params.inputToken).balanceOf(address(this));
 
         AddressUpgradeable.functionCall(_params.dex, _data);
 
-        uint256 balanceOutAfter = getBalance(_params.recipient, _params.outputToken);
+        uint256 balanceOutAfter = _getBalance(_params.recipient, _params.outputToken);
         uint256 balanceInAfter = IERC20Upgradeable(_params.inputToken).balanceOf(address(this));
 
         if (balanceInBefore - balanceInAfter != _params.inputAmount) revert DifferentAmountSpent();
@@ -195,7 +199,7 @@ contract InstantProxy is BridgeBase {
         sendToken(_token, _amount, msg.sender);
     }
 
-    function getBalance(address _wallet, address _token) private view returns (uint256) {
+    function _getBalance(address _wallet, address _token) private view returns (uint256) {
         return
             _token == address(0) ?
             address(_wallet).balance :
