@@ -7,7 +7,7 @@ interface TokenWithBalanceOf extends BaseContract {
     balanceOf(account: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
 }
 
-export class RecipientWallet {
+export class RecipientWalletTracker {
     address: string;
 
     token: TokenWithBalanceOf | string;

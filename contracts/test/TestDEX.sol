@@ -32,4 +32,13 @@ contract TestDEX {
         IERC20(_fromToken).transferFrom(msg.sender, address(this), _inputAmount);
         payable(_recipient).transfer(_inputAmount * price);
     }
+
+    function fakeSwapTokenToToken(
+        address _fromToken,
+        uint256 _inputAmount,
+        address _toToken,
+        address _recipient
+    ) external {
+        IERC20(_fromToken).transferFrom(msg.sender, address(this), _inputAmount);
+    }
 }

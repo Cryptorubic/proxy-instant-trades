@@ -6,7 +6,10 @@ import { expect } from 'chai';
 import { BigNumber, BigNumber as BN } from 'ethers';
 import * as consts from './shared/consts';
 import { proxyFixture } from './shared/fixtures';
-import { RecipientWallet } from './shared/recipientWallet';
+import { RecipientWalletTracker } from './shared/recipientWallet';
+import { calcCryptoFees } from 'rubic-bridge-base/lib';
+import { BridgeBase } from 'rubic-bridge-base/lib/typechain-types';
+import { calcTokenFeesFromUser } from 'rubic-bridge-base/lib/test/shared/utils';
 
 const { balance } = require('@openzeppelin/test-helpers');
 
@@ -21,7 +24,7 @@ interface CallSwapParams {
 }
 
 describe('TestOnlySource', () => {
-    let owner: Wallet, swapper: Wallet;
+    let owner: Wallet, recipientWallet: Wallet;
     let proxy: InstantProxy;
     let dex: TestDEX;
     let tokenA: TestERC20;
@@ -34,44 +37,59 @@ describe('TestOnlySource', () => {
             inputAmount = consts.DEFAULT_AMOUNT_IN,
             outputToken = tokenB,
             minOutputAmount = consts.DEFAULT_AMOUNT_IN.mul(consts.DEX_PRICE),
-            recipient = owner.address,
+            recipient = recipientWallet.address,
             integrator = ethers.constants.AddressZero,
             dexAddress = dex.address
         }: CallSwapParams = {}
     ) {
         const sender = await proxy.signer.getAddress();
-        const recipientWallet = new RecipientWallet(outputToken, recipient);
+        const recipientWalletTracker = new RecipientWalletTracker(outputToken, recipient);
 
         const outputTokenAddress =
             typeof outputToken !== 'string' ? outputToken.address : outputToken;
+
+        const cryptoFees = await calcCryptoFees({
+            bridge: proxy as unknown as BridgeBase,
+            integrator
+        });
+
+        const tokenAmounts = await calcTokenFeesFromUser({
+            bridge: proxy as unknown as BridgeBase,
+            amountWithoutFee: inputAmount
+        });
 
         if (inputToken !== ethers.constants.AddressZero) {
             const inputTokenBalanceBefore = await (<TestERC20>inputToken).balanceOf(sender);
 
             console.log('instantTrade', 'receive token: ', outputTokenAddress);
-            await recipientWallet.traceBalanceBefore();
+            await recipientWalletTracker.traceBalanceBefore();
 
             await proxy.instantTrade(
                 {
                     inputToken: (<TestERC20>inputToken).address,
-                    inputAmount,
+                    inputAmount: tokenAmounts.amountWithFee,
                     outputToken: outputTokenAddress,
                     minOutputAmount,
                     recipient,
                     integrator,
                     dex: dexAddress
                 },
-                data
+                data,
+                { value: cryptoFees.totalCryptoFee }
             );
 
             const inputTokenBalanceAfter = await (<TestERC20>inputToken).balanceOf(sender);
 
-            expect(inputTokenBalanceBefore.sub(inputTokenBalanceAfter)).to.be.eq(inputAmount);
-            expect(await recipientWallet.getBalanceDiff()).to.be.gte(minOutputAmount);
+            expect(inputTokenBalanceBefore.sub(inputTokenBalanceAfter)).to.be.eq(
+                tokenAmounts.amountWithFee
+            );
+            expect(await recipientWalletTracker.getBalanceDiff()).to.be.gte(minOutputAmount);
         } else {
             const tracker = await balance.tracker(sender, 'wei');
 
-            await recipientWallet.traceBalanceBefore();
+            await recipientWalletTracker.traceBalanceBefore();
+
+            const value = tokenAmounts.amountWithFee.add(cryptoFees.totalCryptoFee);
 
             console.log('instantTradeNative', 'receive token: ', outputTokenAddress);
             await proxy.instantTradeNative(
@@ -85,14 +103,12 @@ describe('TestOnlySource', () => {
                     dex: dexAddress
                 },
                 data,
-                { value: inputAmount }
+                { value }
             );
             const deltaWithFeesSender = await tracker.deltaWithFees();
 
-            expect(deltaWithFeesSender.delta.add(deltaWithFeesSender.fees)).to.be.eq(
-                inputAmount.mul(-1)
-            );
-            expect(await recipientWallet.getBalanceDiff()).to.be.gte(minOutputAmount);
+            expect(deltaWithFeesSender.delta.add(deltaWithFeesSender.fees)).to.be.eq(value.mul(-1));
+            expect(await recipientWalletTracker.getBalanceDiff()).to.be.gte(minOutputAmount);
         }
     }
 
@@ -101,7 +117,7 @@ describe('TestOnlySource', () => {
         inputAmount = consts.DEFAULT_AMOUNT_IN,
         outputToken = tokenB,
         minOutputAmount = consts.DEFAULT_AMOUNT_IN.mul(consts.DEX_PRICE),
-        recipient = owner.address,
+        recipient = recipientWallet.address,
         integrator = ethers.constants.AddressZero,
         dexAddress = dex.address
     }: CallSwapParams = {}) {
@@ -146,7 +162,7 @@ describe('TestOnlySource', () => {
     }
 
     before('initialize', async () => {
-        [owner, swapper] = await (ethers as any).getSigners();
+        [owner, recipientWallet] = await (ethers as any).getSigners();
     });
 
     beforeEach('deploy proxy', async () => {
@@ -183,6 +199,32 @@ describe('TestOnlySource', () => {
         });
         it('swap native to token', async () => {
             await performSwap({ inputToken: ethers.constants.AddressZero });
+        });
+
+        describe('handling abnormal situations', () => {
+            it('wrong input amount in data', async () => {
+                const data = dex.interface.encodeFunctionData('swapTokenToToken', [
+                    tokenA.address,
+                    consts.DEFAULT_AMOUNT_IN.sub(ethers.utils.parseEther('1')),
+                    tokenB.address,
+                    owner.address
+                ]);
+
+                await expect(callSwap(data)).to.be.revertedWithCustomError(
+                    proxy,
+                    'DifferentAmountSpent'
+                );
+            });
+            it('user got less than minOutputAmount', async () => {
+                const data = dex.interface.encodeFunctionData('fakeSwapTokenToToken', [
+                    tokenA.address,
+                    consts.DEFAULT_AMOUNT_IN,
+                    tokenB.address,
+                    owner.address
+                ]);
+
+                await expect(callSwap(data)).to.be.revertedWithCustomError(proxy, 'TooFewReceived');
+            });
         });
     });
 });
