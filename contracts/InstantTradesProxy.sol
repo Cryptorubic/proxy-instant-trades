@@ -183,6 +183,14 @@ contract InstantProxy is BridgeBase {
         return _amountIn;
     }
 
+    function enableSwapsWithoutFee() external onlyManagerOrAdmin {
+        swapsWithoutFeesEnabled = true;
+    }
+
+    function disableSwapsWithoutFee() external onlyManagerOrAdmin {
+        swapsWithoutFeesEnabled = false;
+    }
+
     function sweepTokens(address _token, uint256 _amount) external onlyAdmin {
         sendToken(_token, _amount, msg.sender);
     }
