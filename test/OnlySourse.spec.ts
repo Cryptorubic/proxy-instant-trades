@@ -23,8 +23,15 @@ interface CallSwapParams {
     dexAddress?: string;
 }
 
+interface EncodeDataParams {
+    inputToken?: string | TestERC20;
+    inputAmount?: BigNumber;
+    outputToken?: string | TestERC20;
+    recipient?: string;
+}
+
 describe('TestOnlySource', () => {
-    let owner: Wallet, recipientWallet: Wallet;
+    let owner: Wallet, recipientWallet: Wallet, other: Wallet;
     let proxy: InstantProxy;
     let dex: TestDEX;
     let tokenA: TestERC20;
@@ -112,6 +119,42 @@ describe('TestOnlySource', () => {
         }
     }
 
+    async function encodeData({
+        inputToken = tokenA,
+        outputToken = tokenB,
+        inputAmount = consts.DEFAULT_AMOUNT_IN,
+        recipient = recipientWallet.address
+    }: EncodeDataParams = {}): Promise<string> {
+        if (typeof inputToken !== 'string') {
+            if (typeof outputToken !== 'string') {
+                console.log('encode swapTokenToToken');
+                return dex.interface.encodeFunctionData('swapTokenToToken', [
+                    (<TestERC20>inputToken).address,
+                    inputAmount,
+                    outputToken.address,
+                    recipient
+                ]);
+            } else {
+                console.log('encode swapTokenToNative');
+                return dex.interface.encodeFunctionData('swapTokenToNative', [
+                    (<TestERC20>inputToken).address,
+                    inputAmount,
+                    recipient
+                ]);
+            }
+        } else {
+            console.log('encode swapNativeToToken');
+            if (typeof outputToken === 'string') {
+                throw new Error('Cannot swap Native to Native');
+            } else {
+                return dex.interface.encodeFunctionData('swapNativeToToken', [
+                    outputToken.address,
+                    recipient
+                ]);
+            }
+        }
+    }
+
     async function performSwap({
         inputToken = tokenA,
         inputAmount = consts.DEFAULT_AMOUNT_IN,
@@ -121,34 +164,12 @@ describe('TestOnlySource', () => {
         integrator = ethers.constants.AddressZero,
         dexAddress = dex.address
     }: CallSwapParams = {}) {
-        let data: string;
-        const outputTokenAddress =
-            typeof outputToken !== 'string' ? outputToken.address : outputToken;
-
-        if (inputToken !== ethers.constants.AddressZero) {
-            if (outputTokenAddress !== ethers.constants.AddressZero) {
-                console.log('encode swapTokenToToken');
-                data = dex.interface.encodeFunctionData('swapTokenToToken', [
-                    (<TestERC20>inputToken).address,
-                    inputAmount,
-                    outputTokenAddress,
-                    recipient
-                ]);
-            } else {
-                console.log('encode swapTokenToNative');
-                data = dex.interface.encodeFunctionData('swapTokenToNative', [
-                    (<TestERC20>inputToken).address,
-                    inputAmount,
-                    recipient
-                ]);
-            }
-        } else {
-            console.log('encode swapNativeToToken');
-            data = dex.interface.encodeFunctionData('swapNativeToToken', [
-                outputTokenAddress,
-                recipient
-            ]);
-        }
+        const data = await encodeData({
+            inputToken,
+            outputToken,
+            inputAmount,
+            recipient
+        });
 
         await callSwap(data, {
             inputToken,
@@ -162,7 +183,7 @@ describe('TestOnlySource', () => {
     }
 
     before('initialize', async () => {
-        [owner, recipientWallet] = await (ethers as any).getSigners();
+        [owner, recipientWallet, other] = await (ethers as any).getSigners();
     });
 
     beforeEach('deploy proxy', async () => {
@@ -203,12 +224,9 @@ describe('TestOnlySource', () => {
 
         describe('handling abnormal situations', () => {
             it('wrong input amount in data', async () => {
-                const data = dex.interface.encodeFunctionData('swapTokenToToken', [
-                    tokenA.address,
-                    consts.DEFAULT_AMOUNT_IN.sub(ethers.utils.parseEther('1')),
-                    tokenB.address,
-                    owner.address
-                ]);
+                const data = await encodeData({
+                    inputAmount: consts.DEFAULT_AMOUNT_IN.sub(ethers.utils.parseEther('1'))
+                });
 
                 await expect(callSwap(data)).to.be.revertedWithCustomError(
                     proxy,
@@ -222,6 +240,13 @@ describe('TestOnlySource', () => {
                     tokenB.address,
                     owner.address
                 ]);
+
+                await expect(callSwap(data)).to.be.revertedWithCustomError(proxy, 'TooFewReceived');
+            });
+            it('wrong recipient', async () => {
+                const data = await encodeData({
+                    recipient: other.address
+                });
 
                 await expect(callSwap(data)).to.be.revertedWithCustomError(proxy, 'TooFewReceived');
             });
