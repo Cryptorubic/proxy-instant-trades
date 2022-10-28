@@ -146,11 +146,11 @@ contract InstantProxy is BridgeBase {
         InstantTradesParams memory _params,
         bytes calldata _data
     ) private {
-        uint256 balanceOutBefore = getBalance(_params.recipient, _params.outputToken);
+        uint256 balanceOutBefore = _getBalance(_params.recipient, _params.outputToken);
 
         AddressUpgradeable.functionCallWithValue(_params.dex, _data, _params.inputAmount);
 
-        uint256 balanceOutAfter = getBalance(_params.recipient, _params.outputToken);
+        uint256 balanceOutAfter = _getBalance(_params.recipient, _params.outputToken);
 
         if (balanceOutAfter - balanceOutBefore < _params.minOutputAmount) revert TooFewReceived();
     }
