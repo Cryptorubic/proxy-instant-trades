@@ -13,8 +13,6 @@ error TooFewReceived();
 error ZeroToken();
 error NotANativeToken();
 
-import 'hardhat/console.sol';
-
 contract InstantProxy is BridgeBase {
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
     using SafeERC20Upgradeable for IERC20Upgradeable;
