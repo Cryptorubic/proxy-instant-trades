@@ -7,7 +7,6 @@ import 'rubic-bridge-base/contracts/errors/Errors.sol';
 import 'rubic-bridge-base/contracts/BridgeBase.sol';
 
 error DexNotAvailable();
-error FeesEnabled();
 error DifferentAmountSpent();
 error TooFewReceived();
 error ZeroToken();
