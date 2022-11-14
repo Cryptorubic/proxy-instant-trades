@@ -26,7 +26,7 @@ contract InstantProxy is BridgeBase {
         address dex;
     }
 
-    event DexSwap(address dex, address receiver, address inputToken, uint256 inputAmount, address outputToken);
+    event DexSwap(InstantTradesParams parameters);
 
     modifier onlyAvailableDex(address _dex) {
         checkDex(_dex);
@@ -76,7 +76,7 @@ contract InstantProxy is BridgeBase {
             _data
         );
 
-        emit DexSwap(_params.dex, _params.recipient, _params.inputToken, _params.inputAmount, _params.outputToken);
+        emit DexSwap(_params);
     }
 
     function instantTradeNative(
@@ -100,7 +100,7 @@ contract InstantProxy is BridgeBase {
             _data
         );
 
-        emit DexSwap(_params.dex, _params.recipient, _params.inputToken, _params.inputAmount, _params.outputToken);
+        emit DexSwap(_params);
     }
 
 
