@@ -65,7 +65,7 @@ contract InstantProxy is BridgeBase {
         uint256[] memory _minTokenAmounts,
         uint256[] memory _maxTokenAmounts,
         address _admin
-    ) initializer private {
+    ) private initializer {
         __BridgeBaseInit(_fixedCryptoFee, _RubicPlatformFee, _tokens, _minTokenAmounts, _maxTokenAmounts, _admin);
     }
 
@@ -88,10 +88,7 @@ contract InstantProxy is BridgeBase {
 
         accrueFixedCryptoFee(_params.integrator, _info);
 
-        _callDexWithChecksTokenInput(
-            _params,
-            _data
-        );
+        _callDexWithChecksTokenInput(_params, _data);
 
         emit DexSwap(_params);
     }
@@ -117,19 +114,12 @@ contract InstantProxy is BridgeBase {
             _params.inputToken
         );
 
-        _callDexWithChecksNativeInput(
-            _params,
-            _data
-        );
+        _callDexWithChecksNativeInput(_params, _data);
 
         emit DexSwap(_params);
     }
 
-
-    function _callDexWithChecksNativeInput(
-        InstantTradesParams memory _params,
-        bytes calldata _data
-    ) private {
+    function _callDexWithChecksNativeInput(InstantTradesParams memory _params, bytes calldata _data) private {
         uint256 balanceOutBefore = _getBalance(_params.recipient, _params.outputToken);
 
         AddressUpgradeable.functionCallWithValue(_params.dex, _data, _params.inputAmount);
@@ -139,10 +129,7 @@ contract InstantProxy is BridgeBase {
         if (balanceOutAfter - balanceOutBefore < _params.minOutputAmount) revert TooFewReceived();
     }
 
-    function _callDexWithChecksTokenInput(
-        InstantTradesParams memory _params,
-        bytes calldata _data
-    ) private {
+    function _callDexWithChecksTokenInput(InstantTradesParams memory _params, bytes calldata _data) private {
         IERC20Upgradeable(_params.inputToken).safeApprove(_params.dex, _params.inputAmount);
 
         uint256 balanceOutBefore = _getBalance(_params.recipient, _params.outputToken);
@@ -172,14 +159,10 @@ contract InstantProxy is BridgeBase {
     }
 
     function _getBalance(address _wallet, address _token) private view returns (uint256) {
-        return
-            _token == address(0) ?
-            address(_wallet).balance :
-            IERC20Upgradeable(_token).balanceOf(_wallet);
+        return _token == address(0) ? address(_wallet).balance : IERC20Upgradeable(_token).balanceOf(_wallet);
     }
 
     // MANAGEMENT FUNCTIONS //
-
 
     /**
      * @dev Sets the address of a new whitelist registry contract
