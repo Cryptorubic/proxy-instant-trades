@@ -3,7 +3,7 @@ import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import { Wallet } from '@ethersproject/wallet';
 import { InstantProxy, TestDEX, TestERC20 } from '../typechain';
 import { expect } from 'chai';
-import { BigNumber, BigNumber as BN } from 'ethers';
+import { BigNumber, BigNumber as BN, Contract } from 'ethers';
 import * as consts from './shared/consts';
 import { proxyFixture } from './shared/fixtures';
 import { RecipientWalletTracker } from './shared/recipientWallet';
@@ -33,6 +33,7 @@ interface EncodeDataParams {
 describe('TestOnlySource', () => {
     let owner: Wallet, recipientWallet: Wallet, other: Wallet;
     let proxy: InstantProxy;
+    let whitelist: Contract;
     let dex: TestDEX;
     let tokenA: TestERC20;
     let tokenB: TestERC20;
@@ -187,12 +188,12 @@ describe('TestOnlySource', () => {
     });
 
     beforeEach('deploy proxy', async () => {
-        ({ proxy, dex, tokenA, tokenB } = await loadFixture(proxyFixture));
+        ({ proxy, whitelist, dex, tokenA, tokenB } = await loadFixture(proxyFixture));
     });
 
     describe('right settings', () => {
         it('routers', async () => {
-            const routers = await proxy.getAvailableRouters();
+            const routers = await whitelist.getAvailableDEXs();
             expect(routers).to.deep.eq([dex.address]);
         });
     });
