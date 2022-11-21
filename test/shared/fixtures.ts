@@ -19,8 +19,10 @@ export const proxyFixture = async function (): Promise<ProxyFixture> {
     const dexFactory = await ethers.getContractFactory('TestDEX');
     const dex = (await dexFactory.deploy()) as TestDEX;
 
+    const deployer = await dexFactory.signer.getAddress();
+
     const whitelistFactory = await ethers.getContractFactory(WHITELIST_ABI, WHITELIST_BYTECODE);
-    const whitelist = await whitelistFactory.deploy();
+    const whitelist = await whitelistFactory.deploy([], deployer);
 
     await whitelist.addDEXs([dex.address]);
 
@@ -31,7 +33,7 @@ export const proxyFixture = async function (): Promise<ProxyFixture> {
         [],
         [],
         [],
-        await proxyFactory.signer.getAddress(),
+        deployer,
         whitelist.address
     )) as InstantProxy;
 
