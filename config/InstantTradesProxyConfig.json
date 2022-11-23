@@ -1,0 +1,155 @@
+{
+    "chains": [
+      {
+        "id": 56,
+        "name": "bsc",
+        "admin": "0xd57009C65D4923E7c03d61643e3bD34FB2E867EB",
+        "fixedCryptoFee": "3400000000000000",
+        "whitelistContract": "0x7445A1617Cb03438632993707B272951fF15600f"
+      },
+      {
+        "id": 1,
+        "name": "eth",
+        "admin": "0xE5D47fC6186B77E314560aDc435FB93495c35717",
+        "fixedCryptoFee": "850000000000000",
+        "whitelistContract": "0x3330ee066fc570D56b4dfF6dE707C6A2998fd723"
+      },
+      {
+        "id": 137,
+        "name": "polygon",
+        "admin": "0xCeC1140D2451893Aa1a41a13328172f47aF211aa",
+        "fixedCryptoFee": "115183752640587540",
+        "whitelistContract": "0x7445A1617Cb03438632993707B272951fF15600f"
+      },
+      {
+        "id": 43114,
+        "name": "avalanche",
+        "admin": "0x7BbEa69cc5164F3c8A77baDf558218465586cf47",
+        "fixedCryptoFee": "39001560062402500",
+        "whitelistContract": "0x3330ee066fc570D56b4dfF6dE707C6A2998fd723"
+      },
+      {
+        "id": 40,
+        "name": "telos",
+        "fixedCryptoFee": "554877372100765800",
+        "whitelistContract": "0x3330ee066fc570D56b4dfF6dE707C6A2998fd723"
+      },
+      {
+        "id": 250,
+        "name": "fantom",
+        "fixedCryptoFee": "551894654348378000",
+        "whitelistContract": "0x3330ee066fc570D56b4dfF6dE707C6A2998fd723"
+      },
+      {
+        "id": 42161,
+        "name": "arbitrum",
+        "admin": "0x71229576674eCCCc7ca1F4AeEDA93035Fc0b82Fb",
+        "fixedCryptoFee": "850000000000000",
+        "whitelistContract": "0x3330ee066fc570D56b4dfF6dE707C6A2998fd723"
+      },
+      {
+        "id": 122,
+        "name": "fuse",
+        "fixedCryptoFee": "1619852917355104400",
+        "whitelistContract": "0x3330ee066fc570D56b4dfF6dE707C6A2998fd723"
+      },
+      {
+        "id": 1285,
+        "name": "moonriver",
+        "fixedCryptoFee": "12315270935960593",
+        "whitelistContract": "0x3330ee066fc570D56b4dfF6dE707C6A2998fd723"
+      },
+      {
+        "id": 1284,
+        "name": "moonbeam",
+        "fixedCryptoFee": "291638717956195900",
+        "whitelistContract": "0x3330ee066fc570D56b4dfF6dE707C6A2998fd723"
+      },
+      {
+        "id": 10,
+        "name": "optimism",
+        "admin": "0x44fc0Fe5767cc5AaB198D02f364317bD4DF16Abb",
+        "fixedCryptoFee": "850000000000000",
+        "whitelistContract": "0x3330ee066fc570D56b4dfF6dE707C6A2998fd723"
+      },
+      {
+        "id": 66,
+        "name": "okx",
+        "fixedCryptoFee": "5910165484633570",
+        "whitelistContract": "0x3330ee066fc570D56b4dfF6dE707C6A2998fd723"
+      },
+      {
+        "id": 1313161554,
+        "name": "aurora",
+        "admin": "0x1D450D66D1C65Df61C4D27Be29b19020cDebE768",
+        "fixedCryptoFee": "850000000000000",
+        "whitelistContract": "0x3330ee066fc570D56b4dfF6dE707C6A2998fd723"
+      },
+      {
+        "id": 288,
+        "name": "boba",
+        "fixedCryptoFee": "850000000000000",
+        "whitelistContract": "0x3330ee066fc570D56b4dfF6dE707C6A2998fd723"
+      },
+      {
+        "id": 100,
+        "name": "xdai/gnosis",
+        "fixedCryptoFee": "100858609341322680",
+        "whitelistContract": "0x3330ee066fc570D56b4dfF6dE707C6A2998fd723"
+      },
+      {
+        "id": 42220,
+        "name": "celo",
+        "fixedCryptoFee": "190537525412942440",
+        "whitelistContract": "0x3330ee066fc570D56b4dfF6dE707C6A2998fd723"
+      },
+      {
+        "id": 25,
+        "name": "cronos",
+        "fixedCryptoFee": "1488737699304759600",
+        "whitelistContract": "0x3330ee066fc570D56b4dfF6dE707C6A2998fd723"
+      },
+      {
+        "id": 2222,
+        "name": "kava",
+        "fixedCryptoFee": "100934451148734990",
+        "whitelistContract": "0x3330ee066fc570D56b4dfF6dE707C6A2998fd723"
+      },
+      {
+        "id": 1088,
+        "name": "metis",
+        "fixedCryptoFee": "5509641873278238",
+        "whitelistContract": "0x3330ee066fc570D56b4dfF6dE707C6A2998fd723"
+      },
+      {
+        "id": 42262,
+        "name": "oasis",
+        "fixedCryptoFee": "2163518746889942000",
+        "whitelistContract": "0x3330ee066fc570D56b4dfF6dE707C6A2998fd723"
+      },
+      {
+        "id": 8217,
+        "name": "klaytn",
+        "fixedCryptoFee": "534150940372730600",
+        "whitelistContract": "0x3330ee066fc570D56b4dfF6dE707C6A2998fd723"
+      },
+      {
+        "id": 106,
+        "name": "velas",
+        "fixedCryptoFee": "4338206585397597500",
+        "whitelistContract": "0x3330ee066fc570D56b4dfF6dE707C6A2998fd723"
+      },
+      {
+        "id": 57,
+        "name": "syscoin",
+        "fixedCryptoFee": "867400487479074100",
+        "whitelistContract": "0x3330ee066fc570D56b4dfF6dE707C6A2998fd723"
+      },
+      {
+        "id": 32520,
+        "name": "bitgert",
+        "fixedCryptoFee": 0,
+        "whitelistContract": "0x3330ee066fc570D56b4dfF6dE707C6A2998fd723"
+      }
+    ]
+  }
