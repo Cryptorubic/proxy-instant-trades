@@ -6,42 +6,12 @@ const clc = require('cli-color');
 import Config from '../config/InstantTradesProxyConfig.json';
 
 async function main() {
-    const skipChains = [
-        'hardhat',
-        'eth',
-        'bsc',
-        'polygon',
-        'avalanche',
-        'fantom',
-        'cronos',
-        'okx',
-        'celo',
-        'kava',
-        'klaytn',
-        'velas',
-        'moonriver',
-        'aurora',
-        'moonbeam',
-        'gnosis',
-        'fuse',
-        'boba',
-        'telos',
-        'arbitrum',
-        'optimism',
-        'bitgert',
-        'ropsten',
-        'rinkeby',
-        'goerli',
-        'kovan',
-        'bscTest',
-        'polygonMumbai',
-        'defiKingdom'
-    ];
+    const filterChains = ['oasis', 'syscoin'];
 
     const networks = hre.userConfig.networks;
 
     const blockchainNames = Object.keys(<{ [networkName: string]: any }>networks).filter(name => {
-        return !skipChains.includes(name);
+        return filterChains.includes(name);
     });
 
     for (let blockchain of blockchainNames) {
