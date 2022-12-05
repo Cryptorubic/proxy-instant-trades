@@ -6,7 +6,7 @@ const clc = require('cli-color');
 import Config from '../config/InstantTradesProxyConfig.json';
 
 async function main() {
-    const filterChains = ['oasis', 'syscoin'];
+    const filterChains = ['oasis'];
 
     const networks = hre.userConfig.networks;
 
